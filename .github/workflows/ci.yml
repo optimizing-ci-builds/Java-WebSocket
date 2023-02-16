@@ -6,21 +6,117 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas
+          pip install numpy
+      - run: sudo apt update
+      - run: sudo apt install inotify-tools
+      - run: inotifywait -mr /home/runner/work/Java-WebSocket/Java-WebSocket/ --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/inotify-logs.csv & echo 'basak'
+      - run: touch starting_Build_uses-checkout_9
+      - run: rm starting_Build_uses-checkout_9
       - uses: actions/checkout@v1
+      - run: touch starting_Build_SetupJDK18_10
+      - run: rm starting_Build_SetupJDK18_10
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - run: touch starting_Build_Build_14
+      - run: rm starting_Build_Build_14
       - name: Build
         run: mvn -DskipTests package --file pom.xml
+      - run: touch starting_finished_finished_8979874
+        if: always()
+      - run: rm starting_finished_finished_8979874
+        if: always()
+      - name: Execute py script # run file
+        if: always()
+        run: |
+          python .github/workflows/script.py
+      - name: Pushes analysis to another repository
+        if: always()
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-directory: 'optimizing-ci-builds-ci-analysis'
+          destination-github-username: 'UT-SE-Research'
+          destination-repository-name: 'ci-analyzes'
+          target-branch: '1676582734-c797686'
+          target-directory: 'Java-WebSocket/.github/workflows/ci/Build'
+        continue-on-error: true
+      - name: Check push directory exit code
+        if: steps.push_directory.outcome == 'failure'
+        run: |
+          echo 'push failed, trying pull and then push'
+          git stash
+          git pull
+          git stash apply
+          while ! git push origin {time}; do
+            git push
+          done
 
   Test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas
+          pip install numpy
+      - run: sudo apt update
+      - run: sudo apt install inotify-tools
+      - run: inotifywait -mr /home/runner/work/Java-WebSocket/Java-WebSocket/ --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/inotify-logs.csv & echo 'basak'
+      - run: touch starting_Test_uses-checkout_20
+      - run: rm starting_Test_uses-checkout_20
       - uses: actions/checkout@v1
+      - run: touch starting_Test_SetupJDK18_21
+      - run: rm starting_Test_SetupJDK18_21
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - run: touch starting_Test_Test_25
+      - run: rm starting_Test_Test_25
       - name: Test
         run: mvn test --file pom.xml
+      - run: touch starting_finished_finished_8979874
+        if: always()
+      - run: rm starting_finished_finished_8979874
+        if: always()
+      - name: Execute py script # run file
+        if: always()
+        run: |
+          python .github/workflows/script.py
+      - name: Pushes analysis to another repository
+        if: always()
+        id: push_directory
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-directory: 'optimizing-ci-builds-ci-analysis'
+          destination-github-username: 'UT-SE-Research'
+          destination-repository-name: 'ci-analyzes'
+          target-branch: '1676582734-c797686'
+          target-directory: 'Java-WebSocket/.github/workflows/ci/Test'
+        continue-on-error: true
+      - name: Check push directory exit code
+        if: steps.push_directory.outcome == 'failure'
+        run: |
+          echo 'push failed, trying pull and then push'
+          git stash
+          git pull
+          git stash apply
+          while ! git push origin {time}; do
+            git push
+          done
