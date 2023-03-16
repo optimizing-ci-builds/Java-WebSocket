@@ -6,21 +6,139 @@ jobs:
   Build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas
+          pip install numpy
+      - run: sudo apt update
+      - run: sudo apt install inotify-tools
+      - run: inotifywait -mr /home/runner/work/Java-WebSocket/Java-WebSocket/ --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/inotify-logs.csv & echo 'optimizing-ci-builds'
+      - run: touch starting_Build_uses-checkout_9
+      - run: rm starting_Build_uses-checkout_9
       - uses: actions/checkout@v1
+      - run: touch starting_Build_SetupJDK18_10
+      - run: rm starting_Build_SetupJDK18_10
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - run: touch starting_Build_Build_14
+      - run: rm starting_Build_Build_14
       - name: Build
         run: mvn -DskipTests package --file pom.xml
+      - run: touch starting_finished_finished_8979874
+        if: always()
+      - run: rm starting_finished_finished_8979874
+        if: always()
+      - name: Check script file exists and execute
+        if: always()
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: .github/workflows/script.py
+      - name: File exists
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          python .github/workflows/script.py
+      - name: Checkout to destination CI-analyzes repo
+        uses: actions/checkout@v3
+        if: always()
+        with:
+          path: Java-WebSocket
+          ref: '1678936053-5a20a5b'
+          repository: 'UT-SE-Research/ci-analyzes'
+          token: '${{ secrets.API_TOKEN_GITHUB }}'
+          persist-credentials: true
+      - name: Copy files to push to another directory
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          mkdir -p Java-WebSocket/Java-WebSocket/.github/workflows/ci/Build
+          cp -rvT optimizing-ci-builds-ci-analysis Java-WebSocket/Java-WebSocket/.github/workflows/ci/Build
+      - run: echo Java-WebSocket/Java-WebSocket/.github/workflows/ci/Build
+      - name: Pushes analysis to another repository
+        if: steps.check_files.outputs.files_exists == 'true'
+        working-directory: Java-WebSocket
+        run: |
+          commit_message=$GITHUB_REPOSITORY@$GITHUB_WORKFLOW_SHA
+          git config --global user.name 'UT-SE-Research'
+          git config --global user.email '${{ secrets.EMAIL }}'
+          git add .
+          git commit -m $commit_message
+          while ! git push -f origin 1678936053-5a20a5b; do
+            git pull --rebase origin 1678936053-5a20a5b
+            sleep $((RANDOM % 5 + 1))
+          done
 
   Test:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas
+          pip install numpy
+      - run: sudo apt update
+      - run: sudo apt install inotify-tools
+      - run: inotifywait -mr /home/runner/work/Java-WebSocket/Java-WebSocket/ --format '%T;%w;%f;%e' --timefmt %T -o /home/runner/inotify-logs.csv & echo 'optimizing-ci-builds'
+      - run: touch starting_Test_uses-checkout_20
+      - run: rm starting_Test_uses-checkout_20
       - uses: actions/checkout@v1
+      - run: touch starting_Test_SetupJDK18_21
+      - run: rm starting_Test_SetupJDK18_21
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - run: touch starting_Test_Test_25
+      - run: rm starting_Test_Test_25
       - name: Test
         run: mvn test --file pom.xml
+      - run: touch starting_finished_finished_8979874
+        if: always()
+      - run: rm starting_finished_finished_8979874
+        if: always()
+      - name: Check script file exists and execute
+        if: always()
+        id: check_files
+        uses: andstor/file-existence-action@v1
+        with:
+          files: .github/workflows/script.py
+      - name: File exists
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          python .github/workflows/script.py
+      - name: Checkout to destination CI-analyzes repo
+        uses: actions/checkout@v3
+        if: always()
+        with:
+          path: Java-WebSocket
+          ref: '1678936053-5a20a5b'
+          repository: 'UT-SE-Research/ci-analyzes'
+          token: '${{ secrets.API_TOKEN_GITHUB }}'
+          persist-credentials: true
+      - name: Copy files to push to another directory
+        if: steps.check_files.outputs.files_exists == 'true'
+        run: |
+          mkdir -p Java-WebSocket/Java-WebSocket/.github/workflows/ci/Test
+          cp -rvT optimizing-ci-builds-ci-analysis Java-WebSocket/Java-WebSocket/.github/workflows/ci/Test
+      - run: echo Java-WebSocket/Java-WebSocket/.github/workflows/ci/Test
+      - name: Pushes analysis to another repository
+        if: steps.check_files.outputs.files_exists == 'true'
+        working-directory: Java-WebSocket
+        run: |
+          commit_message=$GITHUB_REPOSITORY@$GITHUB_WORKFLOW_SHA
+          git config --global user.name 'UT-SE-Research'
+          git config --global user.email '${{ secrets.EMAIL }}'
+          git add .
+          git commit -m $commit_message
+          while ! git push -f origin 1678936053-5a20a5b; do
+            git pull --rebase origin 1678936053-5a20a5b
+            sleep $((RANDOM % 5 + 1))
+          done
